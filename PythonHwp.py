@@ -48,8 +48,8 @@ def BasicForm():
     # base64 형태로는 입력할 수 없는가?
     # 이미지 디코딩 -> 임시로 저장 -> 한글에 출력 -> 임시 저장 이미지 삭제
     # byte-like object
-    img = r""   # base64 형태의 이미지 입력
-    if img is not "":
+    img = None   # base64 형태의 이미지 입력
+    if img is not None:
         dt = os.path.join(os.path.expanduser('~'), 'Desktop\\')     # 바탕화면 경로 지정
         img = Image.open(BytesIO(base64.b64decode(img)))    # 임시로 이미지 저장
         img.save(dt + 'temp.png', 'png')
@@ -153,7 +153,7 @@ def BasicForm():
 # 자주 사용한 한글 기능들을 클래스로 저장
 # 이 클래스를 사용하거나, 혹은 이를 참고하여 원하는대로 사용하기
 class Pythonhwp():
-    def __init__(self, path: str):
+    def __init__(self, path: str = None):
         """
         __init__\n
         한글 파일을 열고 한글 객체를 생성\n
