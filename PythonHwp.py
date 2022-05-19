@@ -153,7 +153,7 @@ def BasicForm():
 # 자주 사용한 한글 기능들을 클래스로 저장
 # 이 클래스를 사용하거나, 혹은 이를 참고하여 원하는대로 사용하기
 class Pythonhwp():
-    def __init__(self, path: str = None):
+    def __init__(self, path: str = ""):
         """
         __init__\n
         한글 파일을 열고 한글 객체를 생성\n
@@ -167,10 +167,10 @@ class Pythonhwp():
             pass
 
         # 한글 파일을 열고 한글 객체를 반환
-        self.hwp = win32.gencache.EnsureDispatch("HWPFrame.HwpObject")  # 한글 객체
-        self.hwp.RegisterModule("FilePathCheckDLL", "AutomationModule")  # 자동화 보안 모듈
-        self.hwp.XHwpWindows.Item(0).Visible = True  # 한글 백그라운드 실행 -> False
         if os.path.isfile(path) and path.split('\\')[-1] == '.hwp':    # 파일이 존재할 경우
+            self.hwp = win32.gencache.EnsureDispatch("HWPFrame.HwpObject")  # 한글 객체
+            self.hwp.RegisterModule("FilePathCheckDLL", "AutomationModule")  # 자동화 보안 모듈
+            self.hwp.XHwpWindows.Item(0).Visible = True  # 한글 백그라운드 실행 -> False
             self.hwp.Open(path, "HWP", "template:true, versionwarning:false")   # 파일 열기
             self.hwp.HAction.Run("MoveTopLevelBegin")  # 맨 위 페이지로 이동
         else:   # 파일이 존재하지 않을 경우
@@ -458,43 +458,7 @@ class Pythonhwp():
         pset.SetItem("KeepStyle", kepstyle)    # 끼워 넣을 문서의 스타일을 유지할지 여부 on / off
         act.Execute(pset)
         return 0
-    
-    # Enter
-    def BreakPara(self):
-        self.hwp.HAction.Run("BreakPara")
 
-    # Ctrl + Enter
-    def BreakPage(self):
-        self.hwp.HAction.Run("BreakPage")
 
-    # Ctrl + Shift + Enter
-    def BreakColumn(self):
-        self.hwp.HAction.Run("BreakColumn")
-
-    # BackSpace
-    def DeleteBack(self):
-        self.hwp.HAction.Run("DeleteBack")
-
-    # Ctrl + PGUP(맨 위 페이지로 이동)
-    def MoveTopLevelBegin(self):
-        self.hwp.HAction.Run("MoveTopLevelBegin")
-
-    # Ctrl + PGDN(맨 아래 페이지로 이동)
-    def MoveTopLevelEnd(self):
-        self.hwp.HAction.Run("MoveTopLevelEnd")
-
-    # MoveRight
-    def MoveRight(self):
-        self.hwp.HAction.Run("MoveRight")
-
-    # MoveLeft
-    def MoveLeft(self):
-        self.hwp.HAction.Run("MoveLeft")
-
-    # MoveUp
-    def MoveUp(self):
-        self.hwp.HAction.Run("MoveUP")
-
-    # MoveDown
-    def MoveDown(self):
-        self.hwp.HAction.Run("MoveDown")
+if __name__ == "__main__":
+    Pythonhwp()
