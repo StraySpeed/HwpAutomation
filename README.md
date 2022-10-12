@@ -1,24 +1,19 @@
-# ÇÑ/±Û ÀÚµ¿È­
-ÇÑÄÄ¿ÀÇÇ½º ÇÑ±Û ÀÚµ¿È­¸¦ À§ÇÑ ·¹Æ÷ÁöÅä¸®ÀÔ´Ï´Ù.<br>
+# í•œ/ê¸€ ìžë™í™”
+í•œì»´ì˜¤í”¼ìŠ¤ í•œê¸€ ìžë™í™”ë¥¼ ìœ„í•œ ë ˆí¬ì§€í† ë¦¬ìž…ë‹ˆë‹¤.<br>
 
 # Language
-»ç¿ëÇÏ´Â ¾ð¾î<br>
-ÆÄÀÌ½ã<br>
+ì‚¬ìš©í•˜ëŠ” ì–¸ì–´<br>
+íŒŒì´ì¬<br>
 
 # Library
-»ç¿ëÇÏ´Â ¶óÀÌºê·¯¸®<br>
-1. ÇÊ¼ö<br>
+ì‚¬ìš©í•˜ëŠ” ë¼ì´ë¸ŒëŸ¬ë¦¬<br>
+1. í•„ìˆ˜<br>
 ```python
 import win32com.client as win32
-import shutil
-import os
 ````
 
-2. ±ÇÀå<br>
-ÇÊ¼ö´Â ¾Æ´Ï³ª, ÇØ´ç ¶óÀÌºê·¯¸®°¡ ¾øÀ» ½Ã Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖÀ½<br>
+2. ê¶Œìž¥<br>
+í•„ìˆ˜ëŠ” ì•„ë‹ˆë‚˜, í•´ë‹¹ ë¼ì´ë¸ŒëŸ¬ë¦¬ê°€ ì—†ì„ ì‹œ ì œëŒ€ë¡œ ë™ìž‘í•˜ì§€ ì•Šì„ ìˆ˜ ìžˆìŒ<br>
 ```python
-from PIL import Image
-from io import BytesIO
-import base64
-```
 
+```
