@@ -3,20 +3,13 @@ import shutil
 import os
 import warnings
 
-"""
-pointNotMoved 같은걸 쓰지 말고 아까 읽어들인 위치 + 값을 저장했다가
-이를 비교하는 방식이 낫지 않은가 ?
-훨씬 더 정확하고 읽는데 문제도 없는 방식이긴 한데 고민하기
->>> @_clearReadState 사용하기
-"""
+
 class PythonHwp():
     """
     자주 사용한 한글 기능들을 클래스로 저장\n
     이 클래스를 사용하거나, 혹은 이를 참고하여 원하는대로 사용하기
     """
-    # 프라임에듀 로고를 base64 형태로 저장
-    __ICON = "iVBORw0KGgoAAAANSUhEUgAAAEYAAABACAMAAACQqfGrAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABHVBMVEUjHyA/Ozy6ubkxLS6Rj5D44eXWXHH4qYv+9fKfnZ1oZWbg1NbiiZjEEjDyZjHzcD75vKXx8fGDgYLIx8fttb7LMEr0eUv7z7/k4+PTTWT1jGX94thMSUr3n3797OWtq6v5s5jw5+T009j6xrJ2c3Teeov0g1j82czW1dVaV1jpprHIIT32lnHZeYv///9/ATufCTa/ETF6ADyDAjuoCzWNBTmyDjORBji7EDKaCDekCjWwOjLhXyqZITfeayr1hCbpaCnwxMuCCDu/SjDaa36oMjTtfCfu4uSTMGGRGTjWYyybQG2JETm4QjGgKTXmdCnpmm370a72jDTj29b6wpPw4tb5snfll6T94Mn4o1z78PL2k0Hx6eT+8OT1w68CTgv6AAAAAWJLR0QuVNMQhwAAAAd0SU1FB+UHGwooLapwWxYAAAIJSURBVFjD7dbrVtpAEAdwIEEEmQVcokQRFEGU0KLr/brgpVZttbXWam37/o/RlaBJMJfZcPyWeYDfOfM/M7Mbi0UVVVTYiicS8ZERRU2OpcbTymhKZiILQHL5wuQo/dCiBoIhZGq6lAnfjw5gMoTMzNJy6H4shpC5SlU660E/dobk5hdUqawVtaYDDDMiosVSHa/UJxoAbgwhS83lFRxSpi0DvBhC2hXMOCppez8uDCGpcTWQoR8AAhjSLgQyHzura/7M1DQiHsrY+oYfM7+AWQzBMLa55cW0K1XU6PQZxrZ3XOemid2IAcOYFZE1xQX08L0yrLPhZOYqEqtgMSLrLYtZalKZxbQzIusdk8nlJe+Nk2Fsd00wKcnVfsuwzt7MrPxRf8PsH2jFEnKrPZnDI94F0HuyF9TBHJ9w/swAnCZx0+vGnH3iLwxA9jz4PNiYzy/IxSXnNgaMlsQFpVe2fhwMgNaj2KwHjNnPECOyriEfmT7z5ZJzV+Y5a9QkCub4K+eeDBjZc0RE9Or6hvsxIqLWciCT+MZ5AAON4JNept9v/Rk9iVqxzI87H0brYZ/NmPrz3oMxfsl8mJTqw6Mb0/gt+X0TET0NM3pS6o6atVK6u7UzWk/+6vRr8s/9K2Nkw/8ilfTfR5M5lQ3FWXH68NQVCxnu++iI6F8x9GfWXvVRvtZRRfXu9R+zx4sHDXR7GAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMS0wNy0yN1QxMDo0MDo0MyswMDowMOA7Z1gAAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjEtMDctMjdUMTA6NDA6NDMrMDA6MDCRZt/kAAAAAElFTkSuQmCC"
-    
+
     # 참고 - Dispatch로 파일 연 후 Gencache 호출하면 기존 라이브러리를 지우게 되어 있음. 반드시 Gencache를 먼저 호출할 것
     # 각 한/글 파일마다 새로운 PythonHwp 객체를 만들게 되므로 hwp.XHwpWindows.Item의 인덱스가 언제나 0번임
     # 만약 NewFile 등의 방식을 이용하여 하나의 객체에서 새로운 한/글을 열었다면 만든 순서대로 인덱스가 부여됨
@@ -31,21 +24,21 @@ class PythonHwp():
 
 
         * win32가 한글 파일을 열지 못할 경우 -> gen_py 라이브러리를 삭제 후 시도\n
-         gencache.EnsureDispatch의 문제\n
+        gencache.EnsureDispatch의 문제\n
         
 
         * gencache.EnsureDispatch / Dispatch의 차이\n
-         gencache.EnsureDispatch는 Early Binding\n
-         Dispatch는 Late Binding\n
-         Early Binding은 먼저 로드를 전부 다 하는 방식\n
-         gencache.EnsureDispatch가 Early Binding 한 것들을 나중에 못가져오는 문제 존재\n
-         Dispatch를 사용 권장\n
+        gencache.EnsureDispatch는 Early Binding\n
+        Dispatch는 Late Binding\n
+        Early Binding은 먼저 로드를 전부 다 하는 방식\n
+        gencache.EnsureDispatch가 Early Binding 한 것들을 나중에 못가져오는 문제 존재\n
+        Dispatch를 사용 권장\n
 
 
         * 중요 - Dispatch 사용하면 InitScan 인자 오류 발생함\n
-         한글을 읽어들이는 작업에는 gencache.EnsureDispatch\n
-         한글에 출력하는 작업에는 Dispatch 사용 권장\n
-         한글 경로 없으면 FileNotFoundError
+        한글을 읽어들이는 작업에는 gencache.EnsureDispatch\n
+        한글에 출력하는 작업에는 Dispatch 사용 권장\n
+        한글 경로 없으면 FileNotFoundError
         """
         if path is None:
             raise FileNotFoundError
@@ -344,7 +337,12 @@ class PythonHwp():
         Format을 PDF로 바꾸고 확장자를 .pdf로 주면 PDF로도 저장 가능\n
         한글 종료 시 파일에 변동이 있었다면 저장하겠냐는 창이 나오므로 주의\n
 
-        현재 위치에 그대로 저장하려고 하면 오류 발생, saveFile_e를 사용할 것
+        * pdf로 저장 시 일부 잘림 문제 발생 시\n
+        한/글 -> 도구 -> 환경 설정 -> 기타 -> PDF 드라이버 바꿔보기\n
+        ezPDF Builder Supreme 사용 시 일부 잘리는 문제 있음\n
+        페이지 여백 설정 문제라는데,, 다른 드라이버 사용하는 게 편함
+
+        현재 위치에 그대로 저장하려고 하면 오류 발생, 이미 존재하는 파일을 그대로 저장하면 saveFile_e를 사용할 것
         :param path: 파일 저장 경로
         :param pdfopt: 1 -> pdf로 출력(기본 0)
         :param quitopt: 1 -> 한글 파일 종료(기본 1)
@@ -849,6 +847,112 @@ class PythonHwp():
         self.ParagraphShapeIncreaseLineSpacing()
 
     @_clearReadState
+    def __findUnderline(self) -> tuple:
+        """
+        내부에서만 사용할 함수
+        """
+        # 반복 찾기 방법
+        self.hwp.HAction.GetDefault("RepeatFind", self.hwp.HParameterSet.HFindReplace.HSet)
+
+        self.hwp.HParameterSet.HFindReplace.ReplaceString = ""
+        self.hwp.HParameterSet.HFindReplace.FindString = ""
+        self.hwp.HParameterSet.HFindReplace.IgnoreReplaceString = 0
+        self.hwp.HParameterSet.HFindReplace.IgnoreFindString = 0
+        self.hwp.HParameterSet.HFindReplace.Direction = self.hwp.FindDir("Forward")
+        self.hwp.HParameterSet.HFindReplace.WholeWordOnly = 0
+        self.hwp.HParameterSet.HFindReplace.UseWildCards = 0
+        self.hwp.HParameterSet.HFindReplace.SeveralWords = 0
+        self.hwp.HParameterSet.HFindReplace.AllWordForms = 0
+        self.hwp.HParameterSet.HFindReplace.MatchCase = 0
+
+        self.hwp.HParameterSet.HFindReplace.FindCharShape.UnderlineType = self.hwp.HwpUnderlineType("Bottom")
+        self.hwp.HParameterSet.HFindReplace.FindCharShape.UnderlineColor = 0
+        self.hwp.HParameterSet.HFindReplace.FindCharShape.UnderlineShape = self.hwp.HwpUnderlineShape("Solid")
+
+        self.hwp.HParameterSet.HFindReplace.ReplaceMode = 0
+        self.hwp.HParameterSet.HFindReplace.ReplaceStyle = ""
+        self.hwp.HParameterSet.HFindReplace.FindStyle = ""
+        self.hwp.HParameterSet.HFindReplace.FindRegExp = 0   # 정규표현식으로 찾을 경우
+        self.hwp.HParameterSet.HFindReplace.FindJaso = 0
+        self.hwp.HParameterSet.HFindReplace.HanjaFromHangul = 0
+        self.hwp.HParameterSet.HFindReplace.IgnoreMessage = 1
+        self.hwp.HParameterSet.HFindReplace.FindType = 1
+
+        self.hwp.HAction.Execute("RepeatFind", self.hwp.HParameterSet.HFindReplace.HSet)
+
+        return self.hwp.GetPos()
+
+    def underLineUnicode(self, opt:int = 1) -> None:
+        """
+        한/글에서 밑줄 양식을 치환하는 method\n
+        "￰"(U+FFF0) 사용
+
+        :param opt: 옵션(1 = 밑줄->유니코드로 치환, 0 = 유니코드->밑줄 되돌리기)
+        """
+        if opt:
+            self.MoveTopLevelBegin()
+            prev = self._findFirstPos()
+            last = self._findLastPos()
+
+            while True:
+                flag = self.__findUnderline()
+
+                if last < flag: # 미주에 있는 밑줄은 무시하기
+                    continue
+
+                if prev > flag: # 한바퀴 돌았으면
+                    break
+                prev = flag
+
+                self.MoveLeft()
+                self.MoveRight()
+                self.insertLinebyField("￰")    # 밑줄의 앞쪽에 U+fff0을 입력
+
+                self.__findUnderline()
+
+                self.MoveRight()
+                self.MoveLeft()
+                self.insertLinebyField("￰")    # 밑줄의 뒤쪽에 U+fff0을 입력
+                self.MoveRight()
+                
+            self.MoveTopLevelBegin()
+        else:
+            # 모두 바꾸기
+            self.hwp.HAction.GetDefault("AllReplace", self.hwp.HParameterSet.HFindReplace.HSet)
+
+            self.hwp.HParameterSet.HFindReplace.MatchCase = 0
+            self.hwp.HParameterSet.HFindReplace.AllWordForms = 0
+            self.hwp.HParameterSet.HFindReplace.SeveralWords = 0
+            self.hwp.HParameterSet.HFindReplace.UseWildCards = 0
+            self.hwp.HParameterSet.HFindReplace.WholeWordOnly = 0
+            self.hwp.HParameterSet.HFindReplace.AutoSpell = 1
+            # Forward -> 위에서 아래로, Backward -> 아래에서 위로
+            self.hwp.HParameterSet.HFindReplace.Direction = self.hwp.FindDir("Forward")
+            self.hwp.HParameterSet.HFindReplace.IgnoreFindString = 0
+            self.hwp.HParameterSet.HFindReplace.IgnoreReplaceString = 0
+            self.hwp.HParameterSet.HFindReplace.FindString = "￰[^￰]+￰"
+            self.hwp.HParameterSet.HFindReplace.ReplaceString = ""
+
+            # 밑줄 긋는 옵션
+            self.hwp.HParameterSet.HFindReplace.ReplaceCharShape.UnderlineType = self.hwp.HwpUnderlineType("Bottom")
+            self.hwp.HParameterSet.HFindReplace.ReplaceCharShape.UnderlineColor = 0
+            self.hwp.HParameterSet.HFindReplace.ReplaceCharShape.UnderlineShape = self.hwp.HwpUnderlineShape("Solid")
+
+            self.hwp.HParameterSet.HFindReplace.ReplaceMode = 1
+            self.hwp.HParameterSet.HFindReplace.IgnoreMessage = 1
+            self.hwp.HParameterSet.HFindReplace.HanjaFromHangul = 0
+            self.hwp.HParameterSet.HFindReplace.FindJaso = 0
+            # 정규 표현식으로 찾는 옵션 -> 1
+            self.hwp.HParameterSet.HFindReplace.FindRegExp = 1
+            self.hwp.HParameterSet.HFindReplace.FindStyle = ""
+            self.hwp.HParameterSet.HFindReplace.ReplaceStyle = ""
+            self.hwp.HParameterSet.HFindReplace.FindType = 1
+            # 모두 바꾸기
+            self.hwp.HAction.Execute("AllReplace", self.hwp.HParameterSet.HFindReplace.HSet)
+            self.allreplace("￰", "", 0)
+        return
+
+    @_clearReadState
     def BreakPara(self):
         """ Enter """
         self.hwp.HAction.Run("BreakPara")
@@ -973,6 +1077,14 @@ class PythonHwp():
     @_clearReadState
     def MoveSelPageDown(self):
         self.hwp.HAction.Run("MoveSelPageDown")
+    
+    @_clearReadState
+    def MoveParaBegin(self):
+        self.hwp.HAction.Run("MoveParaBegin")
+
+    @_clearReadState
+    def MoveParaEnd(self):
+        self.hwp.HAction.Run("MoveParaEnd")
 
     def ParagraphShapeDecreaseLineSpacing(self):
         """ 줄 간격 점점 줄임 (10%) -> 글자크기 9.5pt 기준 6줄을 줄일 수 있음 """
@@ -982,215 +1094,3 @@ class PythonHwp():
         """ 줄 간격 점점 늘림 (10%) -> 글자크기 9.5pt 기준 6줄을 늘릴 수 있음 """
         self.hwp.HAction.Run("ParagraphShapeIncreaseLineSpacing")
 
-
-
-def primeEduBasicForm():
-    """
-    * 프라임에듀 기본 양식을 만드는 함수\n
-    * 클래스에서 기본양식에 출력하는 것을 구현하고 싶을 경우\n
-    >>> class A(PythonHwp):
-            def __init__(self, path: str, gencache: bool = True) -> None:
-                try:
-                    super().__init__(path, gencache)
-                except FileNotFoundError:
-                    self.hwp = primeEduBasicForm()
-
-    이런 식으로 상속해서 구현 가능\n
-    :return: 한글 객체 반환
-    """
-    import base64
-    from PIL import Image
-    from io import BytesIO
-    hwp = win32.gencache.EnsureDispatch("HWPFrame.HwpObject")  # 한글 객체 생성
-    hwp.RegisterModule("FilePathCheckDLL", "AutomationModule")  # 자동화 보안 모듈
-    hwp.XHwpWindows.Item(0).Visible = True  # 한글 백그라운드 실행 -> False
-
-    # 페이지 여백 설정
-    hwp.HAction.GetDefault("PageSetup", hwp.HParameterSet.HSecDef.HSet)
-    hwp.HParameterSet.HSecDef.PageDef.LeftMargin = hwp.MiliToHwpUnit(13.0)
-    hwp.HParameterSet.HSecDef.PageDef.RightMargin = hwp.MiliToHwpUnit(13.0)
-    hwp.HParameterSet.HSecDef.PageDef.TopMargin = hwp.MiliToHwpUnit(13.0)
-    hwp.HParameterSet.HSecDef.PageDef.BottomMargin = hwp.MiliToHwpUnit(13.0)
-    hwp.HParameterSet.HSecDef.HSet.SetItem("ApplyClass", 24)
-    hwp.HParameterSet.HSecDef.HSet.SetItem("ApplyTo", 3)
-
-    hwp.HAction.Execute("PageSetup", hwp.HParameterSet.HSecDef.HSet)
-    
-    # 머리말 설정
-    hwp.HAction.GetDefault("HeaderFooter", hwp.HParameterSet.HHeaderFooter.HSet)
-    hwp.HParameterSet.HHeaderFooter.HSet.SetItem("HeaderFooterStyle", 0)
-    hwp.HParameterSet.HHeaderFooter.HSet.SetItem("HeaderFooterCtrlType", 0)
-
-    hwp.HAction.Execute("HeaderFooter", hwp.HParameterSet.HHeaderFooter.HSet)
-
-    # 이미지 삽입
-    # base64 형태로는 입력할 수 없는가?
-    # 이미지 디코딩 -> 임시로 저장 -> 한글에 출력 -> 임시 저장 이미지 삭제
-    # byte-like object
-    img = """ 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
-    qX8UVgv8Bpna0gpzLFw0AAAAASUVORK5CYII= """    
-
-    dt = os.path.join(os.path.expanduser('~'), 'Desktop\\')
-    img = Image.open(BytesIO(base64.b64decode(img)))
-
-    img.save(dt + 'temp.png', 'png')
-    hwp.InsertPicture(os.path.join(dt, 'temp.png'), True)   # 보안모듈 없으면 창 뜰 수 있음
-
-    os.remove(dt + 'temp.png')
-
-    # 이미지 객체 속성 조절하기
-    hwp.FindCtrl()  # 인접한 개체 선택 (양쪽에 존재하면 우측 우선)
-    hwp.HAction.GetDefault("FormObjectPropertyDialog", hwp.HParameterSet.HShapeObject.HSet)
-    hwp.HAction.GetDefault("ShapeObjDialog", hwp.HParameterSet.HShapeObject.HSet)  # 액션 초기화
-    hwp.HParameterSet.HShapeObject.TextWrap = hwp.TextWrapType("BehindText")  # 글 뒤로 배치
-    hwp.HParameterSet.HShapeObject.TreatAsChar = 0  # 글자처럼 취급 해제
-    hwp.HAction.Execute("ShapeObjDialog", hwp.HParameterSet.HShapeObject.HSet)  # 실행
-    hwp.HAction.Run("MoveLineEnd")
-
-    # 머리말 입력
-    hwp.HAction.GetDefault("InsertText", hwp.HParameterSet.HInsertText.HSet)
-    hwp.HParameterSet.HInsertText.Text = " [프라임에듀 머리말]"
-    hwp.HAction.Execute("InsertText", hwp.HParameterSet.HInsertText.HSet)
-    hwp.HAction.Run("MoveSelPrevParaBegin")
-    hwp.HAction.Run("MoveSelPrevParaBegin")
-
-    # 글씨체 조절
-    hwp.HAction.GetDefault("CharShape", hwp.HParameterSet.HCharShape.HSet)
-    hwp.HParameterSet.HCharShape.FaceNameUser = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeUser = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameSymbol = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeSymbol = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameOther = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeOther = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameJapanese = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeJapanese = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameHanja = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeHanja = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameLatin = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeLatin = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameHangul = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeHangul = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.Height = hwp.PointToHwpUnit(12.0)
-
-    hwp.HAction.Execute("CharShape", hwp.HParameterSet.HCharShape.HSet)
-
-    hwp.HAction.Run("ParagraphShapeAlignRight")  # 오른쪽 정렬
-
-    hwp.HAction.Run("CloseEx")  # 머리말 종료
-
-    # 쪽 번호 지정
-    hwp.HAction.GetDefault("PageNumPos", hwp.HParameterSet.HPageNumPos.HSet)
-    hwp.HParameterSet.HPageNumPos.DrawPos = hwp.PageNumPosition("BottomCenter")
-    hwp.HAction.Execute("PageNumPos", hwp.HParameterSet.HPageNumPos.HSet)
-    
-    # 쪽 테두리 지정
-    hwp.HAction.GetDefault("PageBorder", hwp.HParameterSet.HSecDef.HSet)
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderTypeLeft = hwp.HwpLineType("DoubleSlim")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderTypeRight = hwp.HwpLineType("DoubleSlim")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderTypeTop = hwp.HwpLineType("DoubleSlim")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderTypeBottom = hwp.HwpLineType("DoubleSlim")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderWidthLeft = hwp.HwpLineWidth("0.5mm")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderWidthRight = hwp.HwpLineWidth("0.5mm")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderWidthTop = hwp.HwpLineWidth("0.5mm")
-    hwp.HParameterSet.HSecDef.PageBorderFillBoth.BorderWidthBottom = hwp.HwpLineWidth("0.5mm")
-    hwp.HParameterSet.HSecDef.HSet.SetItem("ApplyToPageBorderFill", 3)
-    
-    hwp.HAction.Execute("PageBorder", hwp.HParameterSet.HSecDef.HSet)
-    
-    # 단 나누기
-    hwp.HAction.GetDefault("MultiColumn", hwp.HParameterSet.HColDef.HSet)
-    hwp.HParameterSet.HColDef.Count = 2
-    hwp.HParameterSet.HColDef.SameGap = hwp.MiliToHwpUnit(8.0)
-    hwp.HParameterSet.HColDef.LineType = hwp.HwpLineType("Solid")
-    hwp.HParameterSet.HColDef.LineWidth = hwp.HwpLineWidth("0.4mm")
-    hwp.HParameterSet.HColDef.HSet.SetItem("ApplyClass", 832)
-    hwp.HParameterSet.HColDef.HSet.SetItem("ApplyTo", 6)
-
-    hwp.HAction.Execute("MultiColumn", hwp.HParameterSet.HColDef.HSet)
-
-    hwp.HAction.Run("MoveTopLevelBegin")
-
-    # 글씨체 조절
-    hwp.HAction.GetDefault("CharShape", hwp.HParameterSet.HCharShape.HSet)
-    hwp.HParameterSet.HCharShape.FaceNameUser = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeUser = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameSymbol = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeSymbol = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameOther = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeOther = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameJapanese = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeJapanese = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameHanja = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeHanja = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameLatin = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeLatin = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.FaceNameHangul = "나눔스퀘어라운드 Regular"
-    hwp.HParameterSet.HCharShape.FontTypeHangul = hwp.FontType("TTF")
-    hwp.HParameterSet.HCharShape.Height = hwp.PointToHwpUnit(9.5)
-
-    hwp.HAction.Execute("CharShape", hwp.HParameterSet.HCharShape.HSet)
-    hwp.HAction.Run("MoveTopLevelBegin")
-    return hwp
-
-
-if __name__ == "__main__":
-    # hwp = primeEduBasicForm()
-    pass
