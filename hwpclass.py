@@ -2,7 +2,7 @@ import win32com.client as win32
 import shutil
 import os
 import warnings
-
+from functools import wraps
 
 class PythonHwp():
     """
@@ -73,8 +73,8 @@ class PythonHwp():
 
         # 파일이 편집 모드가 아니면 나오는 경고. 근데 한글 파일 열리는 시간이 있어서 그런지 항상 해당 경고가 나옴
         # 편집 모드가 아니라면 self.hwp.EditMode = 1로 만들어서 강제 수정 가능
-        if self._editMode != 1:
-            warnings.warn("File is not Editmode.")
+        # if self._editMode != 1:
+        #    warnings.warn("File is not Editmode.")
 
     # decorator
     # decorator의 원래 함수 반환값 주의할 것,,,
@@ -87,6 +87,7 @@ class PythonHwp():
         
         한/글 캐럿이 움직이는 method에 붙여 놓을 것
         """
+        @wraps(func)
         def inner_function(*args, **kwargs):
             self = args[0]  # class 함수의 첫 인자는 언제나 self
             self.hwp.ReleaseScan()
@@ -141,9 +142,10 @@ class PythonHwp():
         
         >>> hwp.insertLine("텍스트")
         """
+        from unidecode import unidecode
         act = self.hwp.CreateAction("InsertText")
         set = act.CreateSet()
-        set.SetItem("Text", str(text))
+        set.SetItem("Text", unidecode(str(text)))
         act.Execute(set)
         self.hwp.HAction.Run("BreakPara")
         return 0
@@ -159,8 +161,9 @@ class PythonHwp():
 
         >>> hwp.insertLinebyField("텍스트")
         """
+        from unidecode import unidecode
         self.hwp.CreateField(Direction="입력칸", memo="텍스트 입력", name="textarea")
-        self.hwp.PutFieldText("textarea", str(text))
+        self.hwp.PutFieldText("textarea", unidecode(str(text)))
         self.hwp.Run("DeleteField")
         # self.hwp.Run("MoveNextParaBegin")
         return 0
@@ -320,10 +323,11 @@ class PythonHwp():
         :param text: 삽입할 내용
         :return: 0
         """
+        from unidecode import unidecode
         self.hwp.HAction.Run("InsertEndnote")  # 미주 삽입
         act = self.hwp.CreateAction("InsertText")
         set = act.CreateSet()
-        set.SetItem("Text", str(text))
+        set.SetItem("Text", unidecode(str(text)))
         act.Execute(set)
         self.hwp.HAction.Run("CloseEx") # 원래 위치로 돌아감
         return 0
