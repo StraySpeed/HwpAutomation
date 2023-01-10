@@ -15,5 +15,5 @@ import win32com.client as win32
 2. 권장<br>
 필수는 아니나, 해당 라이브러리가 없을 시 제대로 동작하지 않을 수 있음<br>
 ```python
-
+from unidecode import unidecode
 ```
