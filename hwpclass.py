@@ -129,6 +129,27 @@ class PythonHwp():
         self.hwp.Quit()
         return
 
+   @staticmethod
+    def unicodetoAscii(text: str):
+        """
+        text를 ascii로 바꿔주는 함수(staticmethod)\n
+        preserve 값 수정을 통해 보존할 유니코드 지정 가능
+
+        :param text: 바꿀 문자열
+        :return: 아스키 값으로 바뀐 문자열
+        """
+        from unidecode import unidecode
+        ptext = text
+        preserve = ["￰"]    # 보존할 유니코드 값
+        for p in preserve:  # 보존할 값을 미리 치환함
+            print(p)
+            ptext = ptext.replace(p, str(p.encode("utf-8")))
+        ptext = unidecode(ptext)    # 유니코드를 아스키로 통일함
+        for p in preserve:  # 보존한 값을 다시 되돌림
+            print(p)
+            ptext = ptext.replace(str(p.encode("utf-8")), p)
+        return ptext
+    
     @_clearReadState
     def insertLine(self, text: str) -> int:
         """
@@ -142,10 +163,9 @@ class PythonHwp():
         
         >>> hwp.insertLine("텍스트")
         """
-        from unidecode import unidecode
         act = self.hwp.CreateAction("InsertText")
         set = act.CreateSet()
-        set.SetItem("Text", unidecode(str(text)))
+        set.SetItem("Text", PythonHwp.unicodetoAscii(str(text)))
         act.Execute(set)
         self.hwp.HAction.Run("BreakPara")
         return 0
@@ -161,9 +181,8 @@ class PythonHwp():
 
         >>> hwp.insertLinebyField("텍스트")
         """
-        from unidecode import unidecode
         self.hwp.CreateField(Direction="입력칸", memo="텍스트 입력", name="textarea")
-        self.hwp.PutFieldText("textarea", unidecode(str(text)))
+        self.hwp.PutFieldText("textarea", PythonHwp.unicodetoAscii(str(text)))
         self.hwp.Run("DeleteField")
         # self.hwp.Run("MoveNextParaBegin")
         return 0
@@ -323,11 +342,10 @@ class PythonHwp():
         :param text: 삽입할 내용
         :return: 0
         """
-        from unidecode import unidecode
         self.hwp.HAction.Run("InsertEndnote")  # 미주 삽입
         act = self.hwp.CreateAction("InsertText")
         set = act.CreateSet()
-        set.SetItem("Text", unidecode(str(text)))
+        set.SetItem("Text", PythonHwp.unicodetoAscii(str(text)))
         act.Execute(set)
         self.hwp.HAction.Run("CloseEx") # 원래 위치로 돌아감
         return 0
