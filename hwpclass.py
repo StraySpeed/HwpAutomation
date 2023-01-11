@@ -129,24 +129,28 @@ class PythonHwp():
         self.hwp.Quit()
         return
 
-   @staticmethod
+    @staticmethod
     def unicodetoAscii(text: str):
         """
         text를 ascii로 바꿔주는 함수(staticmethod)\n
-        preserve 값 수정을 통해 보존할 유니코드 지정 가능
+        preserve 값 수정을 통해 보존할 유니코드 지정 가능(현재는 U+fff0이 들어가 있음)
 
         :param text: 바꿀 문자열
         :return: 아스키 값으로 바뀐 문자열
         """
         from unidecode import unidecode
+        import re
+
         ptext = text
         preserve = ["￰"]    # 보존할 유니코드 값
         for p in preserve:  # 보존할 값을 미리 치환함
-            print(p)
             ptext = ptext.replace(p, str(p.encode("utf-8")))
-        ptext = unidecode(ptext)    # 유니코드를 아스키로 통일함
+
+        textlist = re.compile(r'[^ㄱ-ㅣ가-힣①②③④⑤]+').findall(text) # 한글/보기문자가 아닌 것들과 매칭
+        for letter in textlist:   
+            ptext = ptext.replace(letter, unidecode(letter))    # 유니코드를 아스키로 통일함
+
         for p in preserve:  # 보존한 값을 다시 되돌림
-            print(p)
             ptext = ptext.replace(str(p.encode("utf-8")), p)
         return ptext
     
