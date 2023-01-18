@@ -36,6 +36,8 @@ class PythonHwp():
 
 
         * 중요 - Dispatch 사용하면 InitScan 인자 오류 발생함\n
+        ~> 기본 인자(format="HWP", args="") 없는 문제
+
         한글을 읽어들이는 작업에는 gencache.EnsureDispatch\n
         한글에 출력하는 작업에는 Dispatch 사용 권장\n
         한글 경로 없으면 FileNotFoundError
@@ -146,7 +148,7 @@ class PythonHwp():
         for p in preserve:  # 보존할 값을 미리 치환함
             ptext = ptext.replace(p, str(p.encode("utf-8")))
 
-        textlist = re.compile(r'[^ㄱ-ㅣ가-힣①②③④⑤]+').findall(text) # 한글/보기문자가 아닌 것들과 매칭
+        textlist = re.compile(r'[^ㄱ-ㅣ가-힣①②③④⑤■]+').findall(text) # 한글/보기문자가 아닌 것들과 매칭
         for letter in textlist:   
             ptext = ptext.replace(letter, unidecode(letter))    # 유니코드를 아스키로 통일함
 
@@ -192,16 +194,31 @@ class PythonHwp():
         return 0
 
     @_clearReadState
-    def insertPicture(self, picturepath: str) -> int:
+    def insertPicture(self, picturepath: str, Embedded=True, sizeoption=0, Reverse=False, watermark=False, Effect=0, Width=0, Height=0):
         """
         한글에 이미지를 입력\n
         입력할 위치로 포인터를 옮긴 후 실행\n
 
+        (Path: 파일경로, 
+        Embedded: 문서에포함여부,
+        sizeoption=사이즈옵션[0: 이미지원래크기,
+                            1: Width와 Height로 크기지정,
+                            2: 셀 안에 있을 때 셀을 채움(그림비율 무시),
+                            3: 셀에 맞추되 그림비율 유지(그림크기 변경)],
+        Reverse=반전여부,
+        watermark=워터마크여부,
+        Effect=그림효과[0: 원래이미지,
+                        1: 그레이스케일,
+                        2: 흑백효과],
+        Width=이미지너비mm,
+        Height=이미지높이mm)
+
         :param picturepath: 이미지 파일의 전체 경로
-        :return: 0
+        :return: 이미지 컨트롤 객체
         """
-        self.hwp.InsertPicture(picturepath, True, 0, 0, 0, 0)   # 원래 크기로, 반전 X, 워터마크 X, 실제 이미지 그대로
-        return 0
+        ctrl = self.hwp.InsertPicture(Path=picturepath, Embedded=Embedded, sizeoption=sizeoption, Reverse=Reverse, watermark=watermark, Effect=Effect, Width=Width, Height=Height)   # 원래 크기로, 반전 X, 워터마크 X, 실제 이미지 그대로
+        self.hwp.SetPosBySet(ctrl.GetAnchorPos(0))  # 그림 앞으로 커서 이동
+        return ctrl
         
 #        === 참고용 ===
 #        이미지 객체 속성을 변경할 경우
@@ -795,12 +812,12 @@ class PythonHwp():
 
     def _editMode(self) -> int:
         """
-        문서의 현재 편집 모드를 반환
-        0 : 읽기 전용
-        1 : 일반 편집모드
-        2 : 양식 모드(양식 사용자 모드) : Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진 것만 편집 가능하다.
-        16 : 배포용 문서 (SetEditMode로 지정 불가능)
-        self.hwp.EditMode = 1로 편집모드 강제 전환 가능
+        문서의 현재 편집 모드를 반환\n
+        0 : 읽기 전용\n
+        1 : 일반 편집모드\n
+        2 : 양식 모드(양식 사용자 모드) : Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진 것만 편집 가능하다.\n
+        16 : 배포용 문서 (SetEditMode로 지정 불가능)\n
+        self.hwp.EditMode = 1로 편집모드 강제 전환 가능\n
         SetEditMode(0)이라는 기능이 있는 것 같은데 미구현 ?
 
         :return: 현재 편집 모드
@@ -809,7 +826,6 @@ class PythonHwp():
 
     def isPageOverbyEndnote(self) -> tuple:
         """
-        # 수정 필요
         미주 위치를 근거로 확인
         페이지가 넘어갔는가?
 
@@ -821,15 +837,16 @@ class PythonHwp():
         self.MoveRight()
         dstPos = self.findNumber()
         lastpage = self.keyIndicator()[3]   # 마지막 위치의 페이지
+        lastline = self.keyIndicator()[5]
 
-
-        if dstPos < srcPos: # 한 바퀴 돌았으면 None
+        if startpage != 1 and lastpage == 1:    # 한 바퀴 돌았으면 -1 반환
             return -1, srcPos
 
-        if startpage != lastpage:   # 시작 페이지와 마지막 페이지가 다르다면 True
-            return 1, srcPos
+        if startpage != lastpage:   # 시작 페이지와 마지막 페이지가 다르다면 1 반환
+            if lastline != 1:
+                return 1, srcPos
 
-        return 0, srcPos
+        return 0, srcPos    # 같으면 0 반환
      
     def isPageOver(self, startpos: tuple, lastpos: tuple = None) -> int:
         """
@@ -838,44 +855,48 @@ class PythonHwp():
 
         :param startpos: 시작 (list, para, pos)
         :param lastpos: 끝 (list, para, pos) 지정하지 않으면 현재 위치
-        :return: 페이지가 다르면 1
+        :return: 페이지가 다르면 1, 줄간격 줄일거면 2, 넘어가지 않았으면 0
         """
-        nowpos = self.hwp.GetPos()  # 현재 위치
+        nowpos = self._getPos()  # 현재 위치
 
         if lastpos is None:     # 마지막 위치가 없으면
-            lastpos = self.hwp.GetPos() # 현재 위치를 마지막 위치로
+            lastpos = self._getPos()() # 현재 위치를 마지막 위치로
         
-        self.hwp.MovePos(*startpos)
+        self._setPos(startpos)
         startpage = self.keyIndicator()[3]  # 시작 위치의 페이지
-        self.hwp.MovePos(*lastpos)
+        self._setPos(lastpos)
         lastpage = self.keyIndicator()[3]   # 마지막 위치의 페이지
+        lastline = self.keyIndicator()[5]   # 마지막 위치의 줄
 
-        self.hwp.MovePos(*nowpos)   # 현재 위치로 다시 돌아옴
+        self._setPos(nowpos)# 현재 위치로 다시 돌아옴
 
         if startpage != lastpage:   # 시작 페이지와 마지막 페이지가 다르다면 True
-            return 1
-        return 0
+            if lastline <= 6:
+                return 2    # 줄 간격을 줄일 것
+            return 1    # 문제를 다음 페이지로 넘길 것
+        return 0    # 페이지가 넘어가지 않음
 
-    def lineSpaceDecrease(self, line: int) -> None:
+    def lineSpaceDecrease(self) -> None:
         """
         # (수정 필요)
         한칸 위 페이지 시작 ~ 현재 위치까지를 드래그하고 줄 간격 10% 줄임\n
         (2단 기준) 6줄을 한 페이지에 더 넣을 수 있음\n
+        Alt + Page Up / Alt + Page Down\n
         45, 45 -> 48, 48까지 가능
         """
         self.MovePageBegin()
-        self.MoveSelPageDown()
-        for _ in range(line):
-            self.MoveSelNextParaBegin()
+        self.MoveSelTopLevelEnd()
         self.ParagraphShapeDecreaseLineSpacing()
-        self.hwp.HAction.Run("Cancel")
-        self.BreakPara()
+        self.Cancel()
+        self.BreakColumn()
         self.ParagraphShapeIncreaseLineSpacing()
+        return
 
     @_clearReadState
     def __findUnderline(self) -> tuple:
         """
-        내부에서만 사용할 함수
+        내부에서만 사용할 함수\n
+        밑줄을 찾는 method
         """
         # 반복 찾기 방법
         self.hwp.HAction.GetDefault("RepeatFind", self.hwp.HParameterSet.HFindReplace.HSet)
@@ -922,12 +943,15 @@ class PythonHwp():
 
             while True:
                 flag = self.__findUnderline()
-
                 if last < flag: # 미주에 있는 밑줄은 무시하기
                     continue
 
                 if prev > flag: # 한바퀴 돌았으면
                     break
+
+                if prev == flag or (prev[0] == flag[0] and prev[1] == flag[1] and prev[2] + 2 == flag[2]):    # 밑줄이 없거나 한개이면
+                    break
+
                 prev = flag
 
                 self.MoveLeft()
@@ -1004,6 +1028,10 @@ class PythonHwp():
         self.hwp.HAction.Run("MoveTopLevelBegin")
 
     @_clearReadState
+    def MoveSelTopLevelEnd(self):
+        """ Ctrl + Shift + PGDN(맨 아래 페이지로 이동 + 선택) """
+        self.hwp.HAction.Run("MoveSelTopLevelEnd")
+    @_clearReadState
     def MoveTopLevelEnd(self):
         """ Ctrl + PGDN(맨 아래 페이지로 이동) """
         self.hwp.HAction.Run("MoveTopLevelEnd")
@@ -1056,17 +1084,13 @@ class PythonHwp():
         """ Delete """
         self.hwp.HAction.Run("Delete")
 
+    def Cancel(self):
+        """ ESC """
+        self.hwp.HAction.Run("Cancel")
     @_clearReadState
     def CloseEx(self):
         """ Shift + ESC """
         self.hwp.HAction.Run("CloseEx")
-
-    def CharShapeUnderline(self):
-        """ # textStyle1로 통합 완료
-        더이상 사용 X, 나중에 제거할 것
-        >>> hwp.textStyle(underline=1)
-         """
-        self.hwp.HAction.Run("CharShapeUnderline")
 
     @_clearReadState
     def MoveSelNextWord(self):
