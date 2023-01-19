@@ -127,7 +127,3 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# others
-hwpclass(기본).py
-BckHWP(한글자동화)025.xlsm
