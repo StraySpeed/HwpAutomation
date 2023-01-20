@@ -571,7 +571,7 @@ class PythonHwp():
 #
 
 
-    def textStyle2(self, color: tuple = (255, 255, 255), font: str = "바탕", size: float = 9.5) -> None:
+    def textStyle2(self, color: tuple = (0, 0, 0), font: str = r"바탕", size: float = 9.5) -> None:
         """
         글씨 스타일 font, size, color(RGB) 지정
         또는 선택 후 텍스트 스타일 지정
@@ -579,67 +579,24 @@ class PythonHwp():
         :param color: 색 지정(RGB)
         :param font: 글씨체(기본 "바탕")
         :param size: 폰트 크기(기본 9.5)
-        >>> hwp.textStyle2(color=(255, 0, 0), font="나눔스퀘어라운드 Regular", size=9.5)
+        >>> hwp.textStyle2(color=(255, 0, 0), font=r"나눔스퀘어라운드 Regular", size=9.5)
         """
-        # 글자 모양 - 글꼴종류
-        self.hwp.HAction.GetDefault("CharShape", self.hwp.HParameterSet.HCharShape.HSet)
-        self.hwp.HParameterSet.HCharShape.FaceNameUser = font
-        self.hwp.HParameterSet.HCharShape.FaceNameSymbol = font
-        self.hwp.HParameterSet.HCharShape.FaceNameOther = font
-        self.hwp.HParameterSet.HCharShape.FaceNameJapanese = font
-        self.hwp.HParameterSet.HCharShape.FaceNameHanja = font
-        self.hwp.HParameterSet.HCharShape.FaceNameLatin = font
-        self.hwp.HParameterSet.HCharShape.FaceNameHangul = font
-
-        # 글자 모양 - 폰트 타입
-        self.hwp.HParameterSet.HCharShape.FontTypeUser = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeSymbol = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeOther = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeJapanese = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeHanja = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeLatin = self.hwp.FontType("TTF")
-        self.hwp.HParameterSet.HCharShape.FontTypeHangul = self.hwp.FontType("TTF")
-
-        # 글자 모양 - 상대크기 %
-        self.hwp.HParameterSet.HCharShape.SizeUser = 100
-        self.hwp.HParameterSet.HCharShape.SizeSymbol = 100
-        self.hwp.HParameterSet.HCharShape.SizeOther = 100
-        self.hwp.HParameterSet.HCharShape.SizeJapanese = 100
-        self.hwp.HParameterSet.HCharShape.SizeHanja = 100
-        self.hwp.HParameterSet.HCharShape.SizeLatin = 100
-        self.hwp.HParameterSet.HCharShape.SizeHangul = 100
-
-        # 글자 모양 - 장평 %
-        self.hwp.HParameterSet.HCharShape.RatioUser = 100
-        self.hwp.HParameterSet.HCharShape.RatioSymbol = 100
-        self.hwp.HParameterSet.HCharShape.RatioOther = 100
-        self.hwp.HParameterSet.HCharShape.RatioJapanese = 100
-        self.hwp.HParameterSet.HCharShape.RatioHanja = 100
-        self.hwp.HParameterSet.HCharShape.RatioLatin = 100
-        self.hwp.HParameterSet.HCharShape.RatioHangul = 100
-
-        # 글자 모양 - 자간 %
-        self.hwp.HParameterSet.HCharShape.SpacingUser = 0
-        self.hwp.HParameterSet.HCharShape.SpacingSymbol = 0
-        self.hwp.HParameterSet.HCharShape.SpacingOther = 0
-        self.hwp.HParameterSet.HCharShape.SpacingJapanese = 0
-        self.hwp.HParameterSet.HCharShape.SpacingHanja = 0
-        self.hwp.HParameterSet.HCharShape.SpacingLatin = 0
-        self.hwp.HParameterSet.HCharShape.SpacingHangul = 0
-
-        # 글자 모양 - 글자위치 %
-        self.hwp.HParameterSet.HCharShape.OffsetUser = 0
-        self.hwp.HParameterSet.HCharShape.OffsetSymbol = 0
-        self.hwp.HParameterSet.HCharShape.OffsetOther = 0
-        self.hwp.HParameterSet.HCharShape.OffsetJapanese = 0
-        self.hwp.HParameterSet.HCharShape.OffsetHanja = 0
-        self.hwp.HParameterSet.HCharShape.OffsetLatin = 0
-        self.hwp.HParameterSet.HCharShape.OffsetHangul = 0
-
-        self.hwp.HParameterSet.HCharShape.Height = self.hwp.PointToHwpUnit(size)
-        self.hwp.HParameterSet.HCharShape.TextColor = self.hwp.RGBColor(*color)
-        self.hwp.HAction.Execute("CharShape", self.hwp.HParameterSet.HCharShape.HSet)
-         
+        Act = self.hwp.CreateAction("CharShape")  # 액션테이블에서 "글자 모양" 검색, 액션아이디에서 "CharShape" 찾음
+        Set = Act.CreateSet()  # 세트 생성
+        Act.GetDefault(Set)  # 세트 초기화(Set의 파라미터에 현재 문서의 값을 적용)
+        Set.SetItem("FaceNameUser", font)
+        Set.SetItem("FaceNameSymbol", font)
+        Set.SetItem("FaceNameOther", font)
+        Set.SetItem("FaceNameJapanese", font)
+        Set.SetItem("FaceNameHanja", font)
+        Set.SetItem("FaceNameLatin", font)
+        Set.SetItem("FaceNameHangul", font)
+        
+        Set.SetItem("Height", self.hwp.PointToHwpUnit(size))
+        Set.SetItem("TextColor", self.hwp.RGBColor(*color))
+        Act.Execute(Set)
+        return
+    
     @_clearReadState
     def deleteLine(self) -> None:
         """
