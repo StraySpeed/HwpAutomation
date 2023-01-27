@@ -75,8 +75,8 @@ class PythonHwp():
 
         # 파일이 편집 모드가 아니면 나오는 경고. 근데 한글 파일 열리는 시간이 있어서 그런지 항상 해당 경고가 나옴
         # 편집 모드가 아니라면 self.hwp.EditMode = 1로 만들어서 강제 수정 가능
-        # if self._editMode != 1:
-        #    warnings.warn("File is not Editmode.")
+        if self.editMode != 1:
+           warnings.warn("File is not Editmode.")
 
     # decorator
     # decorator의 원래 함수 반환값 주의할 것,,,
@@ -767,19 +767,24 @@ class PythonHwp():
             return 1
         return 0
 
-    def _editMode(self) -> int:
+    @property
+    def editMode(self) -> int:
         """
         문서의 현재 편집 모드를 반환\n
         0 : 읽기 전용\n
         1 : 일반 편집모드\n
         2 : 양식 모드(양식 사용자 모드) : Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진 것만 편집 가능하다.\n
         16 : 배포용 문서 (SetEditMode로 지정 불가능)\n
-        self.hwp.EditMode = 1로 편집모드 강제 전환 가능\n
+        1로 지정하여 편집모드로 강제 전환 가능\n
         SetEditMode(0)이라는 기능이 있는 것 같은데 미구현 ?
 
         :return: 현재 편집 모드
         """
         return self.hwp.EditMode
+
+    @editMode.setter
+    def editMode(self, value):
+        self.hwp.EditMode = value
 
     def isPageOverbyEndnote(self) -> tuple:
         """
