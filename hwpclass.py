@@ -71,12 +71,19 @@ class PythonHwp():
         else:   # 파일이 존재하지 않을 경우
             raise FileNotFoundError
 
-        self.readState = 0  # InitScan 상태면 1, ReleaseScan 상태면 0
+        self._readState = 0  # InitScan 상태면 1, ReleaseScan 상태면 0
 
         # 파일이 편집 모드가 아니면 나오는 경고. 근데 한글 파일 열리는 시간이 있어서 그런지 항상 해당 경고가 나옴
         # 편집 모드가 아니라면 self.hwp.EditMode = 1로 만들어서 강제 수정 가능
         if self.editMode != 1:
            warnings.warn("File is not Editmode.")
+
+    @property
+    def readState(self):
+        """
+        현재 readState를 반환
+        """
+        return self._readState
 
     # decorator
     # decorator의 원래 함수 반환값 주의할 것,,,
@@ -93,7 +100,7 @@ class PythonHwp():
         def inner_function(*args, **kwargs):
             self = args[0]  # class 함수의 첫 인자는 언제나 self
             self.hwp.ReleaseScan()
-            self.readState = 0
+            self._readState = 0
             return func(*args, **kwargs)
         return inner_function
 
@@ -148,14 +155,15 @@ class PythonHwp():
         for p in preserve:  # 보존할 값을 미리 치환함
             ptext = ptext.replace(p, str(p.encode("utf-8")))
 
-        textlist = re.compile(r'[^ㄱ-ㅣ가-힣①②③④⑤■]+').findall(text) # 한글/보기문자가 아닌 것들과 매칭
+        textlist = re.compile(r'[^ㄱ-ㅣ가-힣①②③④⑤ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝ■]+').findall(text) # 한글/보기문자가 아닌 것들과 매칭
         for letter in textlist:   
             ptext = ptext.replace(letter, unidecode(letter))    # 유니코드를 아스키로 통일함
 
         for p in preserve:  # 보존한 값을 다시 되돌림
             ptext = ptext.replace(str(p.encode("utf-8")), p)
         return ptext
-    
+
+
     @_clearReadState
     def insertLine(self, text: str) -> int:
         """
@@ -169,6 +177,7 @@ class PythonHwp():
         
         >>> hwp.insertLine("텍스트")
         """
+        
         act = self.hwp.CreateAction("InsertText")
         set = act.CreateSet()
         set.SetItem("Text", PythonHwp.unicodetoAscii(str(text)))
@@ -219,7 +228,6 @@ class PythonHwp():
         ctrl = self.hwp.InsertPicture(Path=picturepath, Embedded=Embedded, sizeoption=sizeoption, Reverse=Reverse, watermark=watermark, Effect=Effect, Width=Width, Height=Height)   # 원래 크기로, 반전 X, 워터마크 X, 실제 이미지 그대로
         self.hwp.SetPosBySet(ctrl.GetAnchorPos(0))  # 그림 앞으로 커서 이동
         return ctrl
-        
 #        === 참고용 ===
 #        이미지 객체 속성을 변경할 경우
 #        
@@ -255,12 +263,12 @@ class PythonHwp():
         #    return (-1, None)
 
         # readState가 아니라면 InitScan() 호출
-        if not self.readState:
+        if not self._readState:
             if opt is None:
                 self.hwp.InitScan(option=None, Range=ran)
             else:
                 self.hwp.InitScan(option=opt, Range=ran)
-            self.readState = 1
+            self._readState = 1
 
         texttuple = self.hwp.GetText()
 
@@ -269,10 +277,10 @@ class PythonHwp():
         
         self.hwp.MovePos(201)   # 읽어들인 위치로 이동
 
-        # readState 중 statesave를 하지 않을 경우 ReleaseScan() 호출
-        if self.readState and not statesave:
+        # _readState 중 statesave를 하지 않을 경우 ReleaseScan() 호출
+        if self._readState and not statesave:
             self.hwp.ReleaseScan()
-            self.readState = 0
+            self._readState = 0
 
         return texttuple
 
@@ -295,12 +303,12 @@ class PythonHwp():
         """
 
         # readState가 아니라면 InitScan() 호출
-        if not self.readState:
+        if not self._readState:
             if opt is None:
                 self.hwp.InitScan(option=None, Range=ran)
             else:
                 self.hwp.InitScan(option=opt, Range=ran)
-            self.readState = 1
+            self._readState = 1
 
         text = (-1, '')
         while text[1].strip() == '':
@@ -311,10 +319,10 @@ class PythonHwp():
         
         self.hwp.MovePos(201)   # 읽어들인 위치로 이동
 
-        # readState 중 statesave를 하지 않을 경우 ReleaseScan() 호출
-        if self.readState and not statesave:
+        # _readState 중 statesave를 하지 않을 경우 ReleaseScan() 호출
+        if self._readState and not statesave:
             self.hwp.ReleaseScan()
-            self.readState = 0
+            self._readState = 0
 
         return text[1]
 
@@ -352,7 +360,7 @@ class PythonHwp():
         self.hwp.HParameterSet.HGotoE.SetSelectionIndex = 5
         self.hwp.HAction.Execute("Goto", self.hwp.HParameterSet.HGotoE.HSet)
 
-        return self._getPos()  # 미주로 이동 후 현재 위치를 반환
+        return self.Pos  # 미주로 이동 후 현재 위치를 반환
 
 
     @_clearReadState
@@ -526,7 +534,6 @@ class PythonHwp():
     def textStyle1(self, bold: int = 0, italic: int = 0, underline: int = 0, strikeline: int = 0) -> None:
         """
         글씨 스타일 굵게(bold), 기울임(italic), 밑줄(underline), 취소선(strikeline)을 조정\n
-
         1 -> 적용함, 0 -> 적용안함\n
         *기본은 적용하지 않음*\n
         :param bold: 굵게
@@ -546,7 +553,7 @@ class PythonHwp():
             self.hwp.HAction.Run("CharShapeUnderline")
         if Set.Item("StrikeOutType") ^ strikeline:
             self.hwp.HAction.Run("CharShapeStrikeout")
-
+        # Act.execute(Set)
         return
 
 #        
@@ -596,7 +603,8 @@ class PythonHwp():
         Set.SetItem("TextColor", self.hwp.RGBColor(*color))
         Act.Execute(Set)
         return
-    
+
+         
     @_clearReadState
     def deleteLine(self) -> None:
         """
@@ -639,10 +647,10 @@ class PythonHwp():
         문서의 마지막 위치 list para pos 반환
         :return: (list, para, pos)
         """
-        nowpos = self._getPos()  # tuple
+        nowpos = self.Pos  # tuple
         self.MoveTopLevelEnd()# 맨 아래 위치 기록하고 돌아옴
-        last = self._getPos()
-        self._setPos(nowpos)
+        last = self.Pos
+        self.Pos = nowpos
         return last
 
 
@@ -651,12 +659,13 @@ class PythonHwp():
         문서의 처음 위치 list para pos 반환
         :return: (list, para, pos)
         """
-        nowpos = self._getPos()  # tuple
+        nowpos = self.Pos  # tuple
         self.MoveTopLevelBegin()  # 맨 위 위치 기록하고 돌아옴
-        first = self._getPos()
-        self._setPos(nowpos)
+        first = self.Pos
+        self.Pos = nowpos
         return first
 
+    @property
     def keyIndicator(self) -> tuple:
         """
         현재 포인터 위치의 keyindicator를 반환
@@ -720,26 +729,24 @@ class PythonHwp():
 
         self.hwp.HAction.Execute("MultiColumn", self.hwp.HParameterSet.HColDef.HSet)
         return
-    
-    def _getPos(self) -> tuple:
+
+    @property
+    def Pos(self) -> tuple:
         """
-        현재 위치를 반환
-        >>> a, b, c = hwp._getPos()
+        - 현재 위치를 반환
+        - (list, para, pos)의 위치로 이동
+
+        :param curpos: Pos로 가져온 (list,para,pos)
+        >>> hwp.Pos(Position)
         """
         return self.hwp.GetPos()
 
-
+    @Pos.setter
     @_clearReadState
-    def _setPos(self, curpos: tuple) -> None:
-        """
-        (list, para, pos)의 위치로 이동
-        :param curpos: GetPos로 가져온 (list,para,pos)
-        >>> hwp._setPos(curPos)
-        """
-        a, b, c = curpos
-        self.hwp.SetPos(a, b, c)
+    def Pos(self, position: tuple):
+        self.hwp.SetPos(*position)
         return
-
+        
     def _deleteCtrl(self) -> None:
         """
         누름틀 제거용
@@ -766,7 +773,7 @@ class PythonHwp():
         if Set.Item("Bold") == 1:   # 굵은 글씨 옵션이 켜져 있는지 여부
             return 1
         return 0
-
+    
     @property
     def editMode(self) -> int:
         """
@@ -786,20 +793,22 @@ class PythonHwp():
     def editMode(self, value):
         self.hwp.EditMode = value
 
+
     def isPageOverbyEndnote(self) -> tuple:
         """
+        # 수정 필요
         미주 위치를 근거로 확인
         페이지가 넘어갔는가?
 
         :return: 페이지가 다르면 1, 같으면 0, 한바퀴 돌았으면 -1과 함께 시작 위치 반환
         """
         srcPos = self.findNumber()
-        startpage = self.keyIndicator()[3]  # 시작 위치의 페이지
+        startpage = self.keyIndicator[3]  # 시작 위치의 페이지
 
         self.MoveRight()
         dstPos = self.findNumber()
-        lastpage = self.keyIndicator()[3]   # 마지막 위치의 페이지
-        lastline = self.keyIndicator()[5]
+        lastpage = self.keyIndicator[3]   # 마지막 위치의 페이지
+        lastline = self.keyIndicator[5]
 
         if startpage != 1 and lastpage == 1:    # 한 바퀴 돌았으면 -1 반환
             return -1, srcPos
@@ -819,24 +828,25 @@ class PythonHwp():
         :param lastpos: 끝 (list, para, pos) 지정하지 않으면 현재 위치
         :return: 페이지가 다르면 1, 줄간격 줄일거면 2, 넘어가지 않았으면 0
         """
-        nowpos = self._getPos()  # 현재 위치
+        nowpos = self.Pos  # 현재 위치
 
         if lastpos is None:     # 마지막 위치가 없으면
-            lastpos = self._getPos()() # 현재 위치를 마지막 위치로
+            lastpos = self.Pos # 현재 위치를 마지막 위치로
         
-        self._setPos(startpos)
-        startpage = self.keyIndicator()[3]  # 시작 위치의 페이지
-        self._setPos(lastpos)
-        lastpage = self.keyIndicator()[3]   # 마지막 위치의 페이지
-        lastline = self.keyIndicator()[5]   # 마지막 위치의 줄
+        self.Pos = startpos
+        startpage = self.keyIndicator[3]  # 시작 위치의 페이지
+        self.Pos = lastpos
+        lastpage = self.keyIndicator[3]   # 마지막 위치의 페이지
+        lastline = self.keyIndicator[5]   # 마지막 위치의 줄
 
-        self._setPos(nowpos)# 현재 위치로 다시 돌아옴
+        self.Pos = nowpos   # 현재 위치로 다시 돌아옴
 
         if startpage != lastpage:   # 시작 페이지와 마지막 페이지가 다르다면 True
             if lastline <= 6:
                 return 2    # 줄 간격을 줄일 것
             return 1    # 문제를 다음 페이지로 넘길 것
         return 0    # 페이지가 넘어가지 않음
+
 
     def lineSpaceDecrease(self) -> None:
         """
@@ -993,6 +1003,7 @@ class PythonHwp():
     def MoveSelTopLevelEnd(self):
         """ Ctrl + Shift + PGDN(맨 아래 페이지로 이동 + 선택) """
         self.hwp.HAction.Run("MoveSelTopLevelEnd")
+
     @_clearReadState
     def MoveTopLevelEnd(self):
         """ Ctrl + PGDN(맨 아래 페이지로 이동) """
@@ -1049,6 +1060,7 @@ class PythonHwp():
     def Cancel(self):
         """ ESC """
         self.hwp.HAction.Run("Cancel")
+
     @_clearReadState
     def CloseEx(self):
         """ Shift + ESC """
@@ -1105,4 +1117,3 @@ class PythonHwp():
     def ParagraphShapeIncreaseLineSpacing(self):
         """ 줄 간격 점점 늘림 (10%) -> 글자크기 9.5pt 기준 6줄을 늘릴 수 있음 """
         self.hwp.HAction.Run("ParagraphShapeIncreaseLineSpacing")
-
