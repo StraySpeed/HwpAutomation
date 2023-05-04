@@ -43,8 +43,8 @@ class hwpObject():
         한글 경로 없으면 FileNotFoundError
         """
         self._readState = 0  # InitScan 상태면 1, ReleaseScan 상태면 0
-        if path is None:
-            raise FileNotFoundError
+        if not (os.path.isfile(path) or path.endswith(".hwp")):  # 파일이 없으면
+            raise FileNotFoundError("한/글 파일이 아닙니다. 파일을 확인해 주세요.")
 
         if gencache and hwpObject.item == 0:
             try:
@@ -64,13 +64,10 @@ class hwpObject():
             self.item = hwpObject.item
             hwpObject.item += 1
 
-        if os.path.isfile(path) and path.endswith(".hwp"):    # 파일이 존재할 경우
-            self.hwp.RegisterModule("FilePathCheckDLL", "AutomationModule")  # 자동화 보안 모듈
-            self.hwp.XHwpWindows.Item(0).Visible = True  # 한글 백그라운드 실행 -> False
-            self.hwp.Open(path, "HWP", "versionwarning:false")   # 파일 열기
-            self.hwp.HAction.Run("MoveTopLevelBegin")  # 맨 위 페이지로 이동
-        else:   # 파일이 존재하지 않을 경우
-            raise FileNotFoundError
+        self.hwp.RegisterModule("FilePathCheckDLL", "AutomationModule")  # 자동화 보안 모듈
+        self.hwp.XHwpWindows.Item(0).Visible = True  # 한글 백그라운드 실행 -> False
+        self.hwp.Open(path, "HWP", "versionwarning:false")   # 파일 열기
+        self.hwp.HAction.Run("MoveTopLevelBegin")  # 맨 위 페이지로 이동
 
         # 편집 모드가 아니라면 self.hwp.EditMode = 1로 만들어서 강제 수정 가능
         if self.editMode != 1:
