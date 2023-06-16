@@ -1,13 +1,12 @@
 from ._decorator import clearReadState
 from ._hwpObject import hwpObject
 
-class hwpKeyBinding():
+class HwpKeyBinding(hwpObject):
     """
     한/글 키 바인딩
     """
-    def __init__(self, hwpObject: hwpObject):
-        self.hwp = hwpObject.hwp
-        self.hwpObject = hwpObject
+    def __init__(self, path: str = None, gencache: bool = True):
+        super().__init__(path, gencache)
 
     @clearReadState
     def BreakPara(self):

@@ -1,21 +1,15 @@
-from .pythonhwp._hwpObject import hwpObject
-from .pythonhwp.keyBinding import hwpKeyBinding
-from .pythonhwp.readWrite import hwpReadWrite
-from .pythonhwp.utility import hwpUtility
-from .pythonhwp.userMethod import hwpUserMethod
+from .pythonhwp.HwpUserMethods import HwpUserMethods
 
 __all__ = ["open"]
 
-class _PythonHwp(hwpObject):
+class _PythonHwp(HwpUserMethods):
     """
     한/글 객체를 생성
     """
     def __init__(self, path: str = None, gencache: bool = True) -> None:
         super().__init__(path, gencache)
-        self.keyBinding = hwpKeyBinding(self)
-        self.readWrite = hwpReadWrite(self)
-        self.utility = hwpUtility(self)
-        self.userMethod = hwpUserMethod(self)
+        self.HWPPATH = path
+        """ 한글 파일 경로 저장 """
 
 
 def openhwp(path: str = None, gencache: bool = True) -> _PythonHwp:

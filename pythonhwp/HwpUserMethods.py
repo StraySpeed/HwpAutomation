@@ -1,21 +1,19 @@
-from ._hwpObject import hwpObject
-from .keyBinding import hwpKeyBinding
+from .HwpMethods import HwpMethods
 from ._decorator import clearReadState
 
-class hwpUserMethod(hwpKeyBinding):
-    def __init__(self, hwpObject: hwpObject):
-        self.hwp = hwpObject.hwp
-        self.hwpObject = hwpObject
+class HwpUserMethods(HwpMethods):
+    def __init__(self, path: str = None, gencache: bool = True):
+        super().__init__(path, gencache)
 
     def _findLastPos(self) -> tuple:
         """
         문서의 마지막 위치 list para pos 반환
         :return: (list, para, pos)
         """
-        nowpos = self.hwpObject.pos  # tuple
+        nowpos = self.pos  # tuple
         self.MoveTopLevelEnd()# 맨 아래 위치 기록하고 돌아옴
-        last = self.hwpObject.pos
-        self.hwpObject.pos = nowpos
+        last = self.pos
+        self.pos = nowpos
         return last
 
 
@@ -24,10 +22,10 @@ class hwpUserMethod(hwpKeyBinding):
         문서의 처음 위치 list para pos 반환
         :return: (list, para, pos)
         """
-        nowpos = self.hwpObject.pos  # tuple
+        nowpos = self.pos  # tuple
         self.MoveTopLevelBegin()  # 맨 위 위치 기록하고 돌아옴
-        first = self.hwpObject.pos
-        self.hwpObject.pos = nowpos
+        first = self.pos
+        self.pos = nowpos
         return first
     
     def _isbold(self) -> bool:

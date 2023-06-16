@@ -106,6 +106,9 @@ class hwpObject():
 
         >>> hwp.saveFile(path=path, pdfopt=0, quitopt=1)
         """
+        if not (pdfopt or path.endswith('.hwp')):
+            path = path + ".hwp"
+            
         if pdfopt:
             self.hwp.HAction.GetDefault("FileSaveAsPdf", self.hwp.HParameterSet.HFileOpenSave.HSet)
             self.hwp.HParameterSet.HFileOpenSave.Attributes = 0
@@ -133,13 +136,31 @@ class hwpObject():
 
         :param path: 파일 저장 경로        
         """
+        if not path.endswith('.hwp'):
+            path = path + ".hwp"
         self.hwp.HAction.GetDefault("FileSave_S", self.hwp.HParameterSet.HFileOpenSave.HSet)   # 파일 저장 액션의 파라미터를
         self.hwp.HParameterSet.HFileOpenSave.filename = path
         self.hwp.HParameterSet.HFileOpenSave.Format = "HWP"
         self.hwp.HParameterSet.HFileOpenSave.Attributes = 0
         self.hwp.HAction.Execute("FileSave_S", self.hwp.HParameterSet.HFileOpenSave.HSet)
 
+    def insertFile(self, path: str) -> None:
+        """
+        현재 한글 문서의 맨 마지막에 다른 한글 문서를 끼워넣을 경우\n
 
+        :param path: 끼워넣을 문서 경로
+        """
+
+        act = self.hwp.CreateAction("InsertFile")    # 한글 파일 끼워넣기
+        pset = act.CreateSet()
+        act.GetDefault(pset)  # 파리미터 초기화
+        pset.SetItem("FileName", path)  # 파일 불러오기
+        pset.SetItem("KeepSection", 1)  # 끼워 넣을 문서를 구역으로 나누어 쪽 모양을 유지할지 여부 on / off
+        pset.SetItem("KeepCharshape", 1)     # 끼워 넣을 문서의 글자 모양을 유지할지 여부 on / off
+        pset.SetItem("KeepParashape", 1)     # 끼워 넣을 문서의 문단 모양을 유지할지 여부 on / off
+        pset.SetItem("KeepStyle", 0)    # 끼워 넣을 문서의 스타일을 유지할지 여부 on / off
+        act.Execute(pset)
+        
     @property
     def readState(self) -> int:
         return self._readState
