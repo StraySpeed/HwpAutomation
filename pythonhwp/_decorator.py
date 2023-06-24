@@ -15,6 +15,6 @@ def clearReadState(func):
     def inner_function(*args, **kwargs):
         self = args[0]  # class 함수의 첫 인자는 언제나 self
         self.hwp.ReleaseScan()
-        self.hwpObject._readState = 0
+        self.readState = 0
         return func(*args, **kwargs)
     return inner_function
