@@ -18,32 +18,45 @@ class hwpObject():
 
     def __init__(self, path: str = None, gencache: bool = True) -> None:
         """
-        ## 한/글 문서 경로를 인자로 받아 한/글 객체 생성\n
+        ## 한/글 문서 경로를 인자로 받아 한/글 객체 생성
         :param path: 한글 문서 경로
         :param gencache: Early Binding할건지 여부 (기본 True)
 
+        ---
+        win32가 한글 파일을 열지 못할 경우 -> gen_py 라이브러리를 삭제 후 시도
 
-        * win32가 한글 파일을 열지 못할 경우 -> gen_py 라이브러리를 삭제 후 시도\n
-        gencache.EnsureDispatch의 문제\n
+        gencache.EnsureDispatch의 문제
         
+        ---
+        ### gencache.EnsureDispatch / Dispatch의 차이
 
-        * gencache.EnsureDispatch / Dispatch의 차이\n
-        gencache.EnsureDispatch는 Early Binding\n
-        Dispatch는 Late Binding\n
-        Early Binding은 먼저 로드를 전부 다 하는 방식\n
-        gencache.EnsureDispatch가 Early Binding 한 것들을 나중에 못가져오는 문제 존재\n
-        Dispatch를 사용 권장\n
+        * gencache.EnsureDispatch는 Early Binding
+        * Dispatch는 Late Binding
 
+        Early Binding은 먼저 로드를 전부 다 하는 방식
 
-        * 중요 - Dispatch 사용하면 InitScan 인자 오류 발생함\n
+        gencache.EnsureDispatch가 Early Binding 한 것들을 나중에 못가져오는 문제 존재
+
+        ### Dispatch를 사용 권장
+
+        ---
+        # 중요 - Dispatch 사용하면 InitScan 인자 오류 발생함
         ~> 기본 인자(format="HWP", args="") 없는 문제
 
-        한글을 읽어들이는 작업에는 gencache.EnsureDispatch\n
-        한글에 출력하는 작업에는 Dispatch 사용 권장\n
+        한글을 읽어들이는 작업에는 gencache.EnsureDispatch
+
+        한글에 출력하는 작업에는 Dispatch 사용 권장
+
         한글 경로 없으면 FileNotFoundError
         """
         self._readState = 0  # InitScan 상태면 1, ReleaseScan 상태면 0
-        if not (os.path.isfile(path) or path.endswith(".hwp")):  # 파일이 없으면
+        self.path = path
+
+        # 파일명만 입력 시 현 디렉터리와 결합
+        if not os.path.isfile(path):
+            self.path = os.path.join(os.getcwd(), self.path)
+
+        if not (os.path.isfile(self.path) and self.path.endswith(".hwp")):  # 파일이 없으면
             raise FileNotFoundError("한/글 파일이 아닙니다. 파일을 확인해 주세요.")
 
         if gencache and hwpObject.item == 0:
@@ -86,16 +99,23 @@ class hwpObject():
 
     def saveFile(self, path: str, pdfopt: int = 0, quitopt: int = 1) -> None:
         """
-        현재 한글 파일을 다른이름으로 저장하고 종료함\n
+        ## 현재 한글 파일을 다른이름으로 저장하고 종료함
 
-        path -> 확장자(.hwp)를 포함한 절대 경로여야 함\n
-        파일을 열었을 때와 다른 경로로 입력시 원본과 다른 파일로 저장됨\n
-        Format을 PDF로 바꾸고 확장자를 .pdf로 주면 PDF로도 저장 가능\n
-        한글 종료 시 파일에 변동이 있었다면 저장하겠냐는 창이 나오므로 주의\n
+        path -> 확장자(.hwp)를 포함한 절대 경로여야 함
 
-        * pdf로 저장 시 일부 잘림 문제 발생 시\n
-        한/글 -> 도구 -> 환경 설정 -> 기타 -> PDF 드라이버 바꿔보기\n
-        ezPDF Builder Supreme 사용 시 일부 잘리는 문제 있음\n
+        파일을 열었을 때와 다른 경로로 입력시 원본과 다른 파일로 저장됨
+
+        Format을 PDF로 바꾸고 확장자를 .pdf로 주면 PDF로도 저장 가능
+
+        한글 종료 시 파일에 변동이 있었다면 저장하겠냐는 창이 나오므로 주의
+
+        ---
+        ### pdf로 저장 시 일부 잘림 문제 발생 시
+
+        한/글 -> 도구 -> 환경 설정 -> 기타 -> PDF 드라이버 바꿔보기
+
+        ezPDF Builder Supreme 사용 시 일부 잘리는 문제 있음
+
         페이지 여백 설정 문제라는데,, 다른 드라이버 사용하는 게 편함
 
         현재 위치에 그대로 저장하려고 하면 오류 발생, 이미 존재하는 파일을 그대로 저장하면 saveFile_e를 사용할 것
@@ -129,10 +149,11 @@ class hwpObject():
 
     def saveFile_e(self, path:str) -> None:
         """
-        현재 한글 파일을 저장하고 종료함(이미 존재하는 파일을 그 자리에 저장)\n
+        현재 한글 파일을 저장하고 종료함(이미 존재하는 파일을 그 자리에 저장)
 
-        path -> 확장자(.hwp)를 포함한 절대 경로여야 함\n
-        파일을 열었을 때와 다른 경로로 입력시 원본과 다른 파일로 저장됨\n
+        path -> 확장자(.hwp)를 포함한 절대 경로여야 함
+
+        파일을 열었을 때와 다른 경로로 입력시 원본과 다른 파일로 저장됨
 
         :param path: 파일 저장 경로        
         """
@@ -146,7 +167,7 @@ class hwpObject():
 
     def insertFile(self, path: str) -> None:
         """
-        현재 한글 문서의 맨 마지막에 다른 한글 문서를 끼워넣을 경우\n
+        현재 한글 문서의 맨 마지막에 다른 한글 문서를 끼워넣을 경우
 
         :param path: 끼워넣을 문서 경로
         """
@@ -173,15 +194,23 @@ class hwpObject():
     def keyIndicator(self) -> tuple:
         """
         현재 포인터 위치의 keyindicator를 반환
+
         튜플로 반환
 
         (Boolean, 총 구역, 현재 구역, 쪽, 단, 줄, 칸, 삽입/수정, 컨트롤 이름)
+
         seccnt : 총 구역
+
         secno : 현재 구역
+
         prnpageno : 쪽
+
         colno : 단
+
         line : 줄
+
         pos : 칸
+
         over : (true:수정, false:삽입)
 
         페이지 가져오기 -> keyindicator[3]
@@ -212,12 +241,18 @@ class hwpObject():
     @property
     def editMode(self) -> int:
         """
-        문서의 현재 편집 모드를 반환\n
-        0 : 읽기 전용\n
-        1 : 일반 편집모드\n
-        2 : 양식 모드(양식 사용자 모드) : Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진 것만 편집 가능하다.\n
-        16 : 배포용 문서 (SetEditMode로 지정 불가능)\n
-        1로 지정하여 편집모드로 강제 전환 가능\n
+        문서의 현재 편집 모드를 반환
+
+        0 : 읽기 전용
+
+        1 : 일반 편집모드
+
+        2 : 양식 모드(양식 사용자 모드) : Cell과 누름틀 중 양식 모드에서 편집 가능 속성을 가진 것만 편집 가능하다.
+
+        16 : 배포용 문서 (SetEditMode로 지정 불가능)
+        
+        1로 지정하여 편집모드로 강제 전환 가능
+
         SetEditMode(0)이라는 기능이 있는 것 같은데 미구현 ?
 
         :return: 현재 편집 모드
