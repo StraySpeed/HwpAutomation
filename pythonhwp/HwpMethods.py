@@ -31,15 +31,20 @@ class HwpMethods(HwpKeyBinding):
     
 
     def readLine_tuple(self, opt :int=None, ran :int =0x0077, statesave :int = 1) -> tuple:
-        """         한글에서 한 줄을 읽어오기\n
+        """         ## 한글에서 한 줄을 읽어오기
 
-        포인터가 위치한 지점부터 엔터키 까지를 한 줄로 인식하여 읽어들임\n
-        읽어들인 text를 반환\n
-        텍스트를 읽어들이고 읽어들인 위치로 이동\n
-        공백을 포함해서 읽어들임, 튜플 형태를 반환\n
+        포인터가 위치한 지점부터 엔터키 까지를 한 줄로 인식하여 읽어들임
+
+        읽어들인 text를 반환
+
+        텍스트를 읽어들이고 읽어들인 위치로 이동하지 않음
+
+        공백을 포함해서 읽어들임, 튜플 형태를 반환
+
         중간에 텍스트에 변동이 있으면 _clearReadState를 줄 것
 
         ## 참고 - 미주가 여러 줄인 경우 이를 읽어들이지 못함
+
         ## MovePos의 문제인 듯함
 
         :param opt: 읽어들이는 옵션(기본 None)
@@ -78,14 +83,18 @@ class HwpMethods(HwpKeyBinding):
 
     def readLine(self, opt :int=None, ran :int =0x0077, statesave :int = 1) -> None | str:
         """
-        한글에서 한 줄을 읽어오기\n
+        ## 한글에서 한 줄을 읽어오기
 
-        포인터가 위치한 지점부터 엔터키 까지를 한 줄로 인식하여 읽어들임\n
-        읽어들인 text를 반환\n
-        텍스트를 읽어들이고 읽어들인 위치로 이동\n
+        포인터가 위치한 지점부터 엔터키 까지를 한 줄로 인식하여 읽어들임
+
+        읽어들인 text를 반환
+
+        텍스트를 읽어들이고 읽어들인 위치로 이동하지 않음
+
         공백없이 읽어들임
 
         ## 참고 - 미주가 여러 줄인 경우 이를 읽어들이지 못함
+
         ## MovePos의 문제인 듯함
 
         :param opt: 읽어들이는 옵션(기본 None)
@@ -123,10 +132,10 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def insertLine(self, text: str) -> None:
         """
-        한글에 텍스트를 입력
+        ## 한글에 텍스트를 입력
 
         입력할 위치로 포인터를 옮긴 후 실행
-        text -> 문자열 형식
+
         hwp.HAction.Run("BreakPara") 추가
         >>> hwp.insertLine("텍스트")
         """
@@ -140,7 +149,7 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def insertLinebyField(self, text: str) -> None:
         """
-        한글에 텍스트를 입력(누름틀 버전)
+        ## 한글에 텍스트를 입력(누름틀 버전)
 
         누름틀을 이용할 경우 포인터가 입력한 문자 끝으로 넘어가지 않음
 
@@ -154,8 +163,9 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def insertPicture(self, picturepath: str, Embedded=True, sizeoption=0, Reverse=False, watermark=False, Effect=0, Width=0, Height=0):
         """
-        한글에 이미지를 입력\n
-        입력할 위치로 포인터를 옮긴 후 실행\n
+        ## 한글에 이미지를 입력
+
+        입력할 위치로 포인터를 옮긴 후 실행
 
         (Path: 파일경로, 
         Embedded: 문서에포함여부,
@@ -192,7 +202,7 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def insertEndnote(self, text: str) -> None:
         """
-        미주를 삽입하는 함수\n
+        ## 미주를 삽입하는 함수
 
         :param text: 삽입할 내용
         :return: 0
@@ -207,7 +217,7 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def deleteLine(self) -> None:
         """
-        현재 줄(엔터 전까지를) 삭제\n
+        ### 현재 줄(엔터 전까지를) 삭제
         """
         self.hwp.HAction.Run("MoveSelNextParaBegin")     # 다음 문단 (Ctrl + Shift + 아래방향키) 선택
         self.hwp.HAction.Run("Delete")
@@ -216,7 +226,7 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def deleteWord(self) -> None:
         """
-        현재 단어(공백 전까지를) 삭제\n
+        ### 현재 단어(공백 전까지를) 삭제
         """
         self.hwp.HAction.Run("MoveSelNextWord")    # 다음 단어 (Ctrl + Shift + 오른쪽방향키) 선택
         self.hwp.HAction.Run("Delete")
@@ -225,10 +235,11 @@ class HwpMethods(HwpKeyBinding):
 
     def setNewNumber(self, num: int) -> None:
         """
-        미주 번호를 바꾸는 함수\n
+        ## 미주 번호를 바꾸는 함수
 
-        한글 -> 새 번호로 시작 -> 미주 번호\n
-        * 내부에서 num을 정수로 바꾸도록 되어 있음
+        한글 -> 새 번호로 시작 -> 미주 번호
+
+        * 참고 - 내부에서 num을 정수로 바꾸도록 되어 있음
 
         :param num: 바꿀 번호
         """
@@ -241,14 +252,35 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def findNumber(self) -> tuple:
         """
-        미주로 이동하고 미주의 앞 위치를 반환\n
+        ## 미주로 이동하고 미주의 앞 위치를 반환
 
-        한글 내 포인터 미주 앞으로 이동함\n
-        문서의 맨 마지막 미주 너머에서 이를 실행 시 처음부터 재탐색하겠냐는 메시지 창이 뜸 -> 루프 시 탈출 조건 필요\n
-        -> hwp.SetMessageBoxMode(0x10000)\n
-        미주의 앞 위치를 반환하므로 루프 내에서 미주 탐색 시 동일 위치를 무한루프 할 수 있음에 주의\n
-        hwp.HAction.Run("MoveNextParaBegin")으로 현재 문장을 넘어간 후 실행할 것\n
-        또는 다른 방식으로 포인터 위치를 옮긴 후 실행할 것\n
+        한글 내 포인터 미주 앞으로 이동함
+
+        ---
+        ## 수정
+        이 MessageBox는 제어되지 않는 박스임
+
+        CtrlID를 체크하는 방식으로 해야 할 듯함
+
+        ```
+        ctrl = hwp.HeadCtrl
+        hwp.MoveTopLevelBegin()
+        while ctrl: # 모든 컨트롤 확인
+            if ctrl.CtrlID == "tbl":  # 표 컨트롤이 있다면
+                pass
+            ctrl = ctrl.Next    # 다음 컨트롤로
+        ```
+
+        ---
+        문서의 맨 마지막 미주 너머에서 이를 실행 시 처음부터 재탐색하겠냐는 메시지 창이 뜸 -> 루프 시 탈출 조건 필요
+
+        -> hwp.SetMessageBoxMode(0x10000)
+
+        미주의 앞 위치를 반환하므로 루프 내에서 미주 탐색 시 동일 위치를 무한루프 할 수 있음에 주의
+
+        hwp.HAction.Run("MoveNextParaBegin")으로 현재 문장을 넘어간 후 실행할 것
+
+        또는 다른 방식으로 포인터 위치를 옮긴 후 실행할 것
         :return: (list, para, pos)
         """
         # self.hwp.SetMessageBoxMode(0x10000)  # 예/아니오 창에서 "예"를 누르는 method
@@ -257,16 +289,18 @@ class HwpMethods(HwpKeyBinding):
         self.hwp.HParameterSet.HGotoE.SetSelectionIndex = 5
         self.hwp.HAction.Execute("Goto", self.hwp.HParameterSet.HGotoE.HSet)
 
-        return self.Pos  # 미주로 이동 후 현재 위치를 반환
+        return self.pos  # 미주로 이동 후 현재 위치를 반환
 
     def allreplace(self, findtext: str, changetext: str, regex: int = 0) -> None:
         """
-        한글 -> 찾아 바꾸기를 실행\n
+        ## 한글 -> 찾아 바꾸기를 실행
 
-        프라임에듀 기본 양식.hwp의 경우, 머리말이 [프라임에듀 머리말]로 되어 있음\n
-        findtext에 이를 넣고 changetext에 바꿀 머리말을 넣어서 머리말 변경 가능\n
-        바꾸기 = RepeatFind, 모두 바꾸기 = AllReplace\n
+        프라임에듀 기본 양식.hwp의 경우, 머리말이 [프라임에듀 머리말]로 되어 있음
 
+        findtext에 이를 넣고 changetext에 바꿀 머리말을 넣어서 머리말 변경 가능
+
+        바꾸기 = RepeatFind, 모두 바꾸기 = AllReplace
+        
         :param findtext: 찾을 문자열
         :param changetext: 바꿀 문자열
         :param regex: 정규표현식 사용 여부(기본 0)
@@ -317,10 +351,12 @@ class HwpMethods(HwpKeyBinding):
     @clearReadState
     def find(self, text: str, regex: int = 0) -> int:
         """
-        한글 -> 찾기를 실행\n
+        ## 한글 -> 찾기를 실행
 
-        정규표현식을 이용하려면 1, 아니면 0을 대입\n
+        정규표현식을 이용하려면 1, 아니면 0을 대입
+
         한 바퀴를 돌면 hwp.SelectionMode == 0이 됨
+
         한 바퀴를 돌면 0, 아니면 1을 반환
 
         :param text: 찾을 문자열
@@ -356,9 +392,11 @@ class HwpMethods(HwpKeyBinding):
 
     def textStyle1(self, bold: int = 0, italic: int = 0, underline: int = 0, strikeline: int = 0) -> None:
         """
-        글씨 스타일 굵게(bold), 기울임(italic), 밑줄(underline), 취소선(strikeline)을 조정\n
-        1 -> 적용함, 0 -> 적용안함\n
-        *기본은 적용하지 않음*\n
+        ## 글씨 스타일 굵게(bold), 기울임(italic), 밑줄(underline), 취소선(strikeline)을 조정
+
+        1 -> 적용함, 0 -> 적용안함
+
+        *기본은 적용하지 않음*
         :param bold: 굵게
         :param italic: 기울임
         :param underline: 밑줄
@@ -402,7 +440,8 @@ class HwpMethods(HwpKeyBinding):
 
     def textStyle2(self, color: tuple = (0, 0, 0), font: str = r"바탕", size: float = 9.5) -> None:
         """
-        글씨 스타일 font, size, color(RGB) 지정
+        ## 글씨 스타일 font, size, color(RGB) 지정
+
         또는 선택 후 텍스트 스타일 지정
 
         :param color: 색 지정(RGB)
@@ -428,7 +467,7 @@ class HwpMethods(HwpKeyBinding):
 
     def multiColumn(self, num: int) -> None:
         """
-        단을 n개로 분할
+        ## 단을 n개로 분할
 
         선 양식 등을 조절 가능
         :param num: 분할할 단 개수
@@ -447,19 +486,34 @@ class HwpMethods(HwpKeyBinding):
     
     def _deleteCtrl(self) -> None:
         """
-        누름틀 제거용
+        ### 누름틀 제거용
         >>> hwp._deleteCtrl()
         """
         self.hwp.HAction.GetDefault("DeleteCtrls", self.hwp.HParameterSet.HDeleteCtrls.HSet)
         self.hwp.HParameterSet.HDeleteCtrls.CreateItemArray("DeleteCtrlType", 1)
         self.hwp.HParameterSet.HDeleteCtrls.DeleteCtrlType.SetItem(0, 17)
         self.hwp.HAction.Execute("DeleteCtrls", self.hwp.HParameterSet.HDeleteCtrls.HSet)
-    
+
+    def tableToString(self) -> None:
+        """
+        ## 표를 문자열로 전환
+        
+        표 안에 커서가 있어야 함
+        
+        Ctrl 선택하면 될 듯?함
+
+        * 공백 3칸으로 분리
+        """
+        self.hwp.HAction.GetDefault("TableTableToString", self.hwp.HParameterSet.HTableTblToStr.HSet)
+        self.hwp.HParameterSet.HTableTblToStr.HSet.SetItem("DelimiterType", 3)  # UserDefine으로 사용하도록 설정(0 Tab/ 1 쉼표/ 2 공백/ 3 사용자설정)
+        self.hwp.HParameterSet.HTableTblToStr.UserDefine = "   "
+        self.hwp.HAction.Execute("TableTableToString", self.hwp.HParameterSet.HTableTblToStr.HSet)
 
     @staticmethod
     def unicodetoAscii(text: str) -> str:
         """
-        text를 ascii로 바꿔주는 함수(staticmethod)\n
+        ## text를 ascii로 바꿔주는 함수(staticmethod)
+        
         preserve 값 수정을 통해 보존할 유니코드 지정 가능(현재는 U+fff0이 들어가 있음)
 
         :param text: 바꿀 문자열
