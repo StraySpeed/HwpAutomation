@@ -7,7 +7,8 @@ class HwpUserMethods(HwpMethods):
 
     def _findLastPos(self) -> tuple:
         """
-        문서의 마지막 위치 list para pos 반환
+        ### 문서의 마지막 위치 list para pos 반환
+
         :return: (list, para, pos)
         """
         nowpos = self.pos  # tuple
@@ -19,7 +20,8 @@ class HwpUserMethods(HwpMethods):
 
     def _findFirstPos(self) -> tuple:
         """
-        문서의 처음 위치 list para pos 반환
+        ### 문서의 처음 위치 list para pos 반환
+
         :return: (list, para, pos)
         """
         nowpos = self.pos  # tuple
@@ -30,7 +32,7 @@ class HwpUserMethods(HwpMethods):
     
     def _isbold(self) -> bool:
         """
-        포인터 위치가 굵은 글씨인지 판단
+        ## 포인터 위치가 굵은 글씨인지 판단
         
         >>> if hwp._isbold():
                 pass
@@ -47,25 +49,26 @@ class HwpUserMethods(HwpMethods):
     
     def isPageOver(self, startpos: tuple, lastpos: tuple = None) -> int:
         """
-        startpos와 lastpos의 페이지 위치를 확인
+        ## startpos와 lastpos의 페이지 위치를 확인
+        
         페이지가 넘어갔는가?
 
         :param startpos: 시작 (list, para, pos)
         :param lastpos: 끝 (list, para, pos) 지정하지 않으면 현재 위치
         :return: 페이지가 다르면 1, 줄간격 줄일거면 2, 넘어가지 않았으면 0
         """
-        nowpos = self.Pos  # 현재 위치
+        nowpos = self.pos  # 현재 위치
 
         if lastpos is None:     # 마지막 위치가 없으면
-            lastpos = self.Pos # 현재 위치를 마지막 위치로
+            lastpos = self.pos # 현재 위치를 마지막 위치로
         
-        self.Pos = startpos
+        self.pos = startpos
         startpage = self.keyIndicator[3]  # 시작 위치의 페이지
-        self.Pos = lastpos
+        self.pos = lastpos
         lastpage = self.keyIndicator[3]   # 마지막 위치의 페이지
         lastline = self.keyIndicator[5]   # 마지막 위치의 줄
 
-        self.Pos = nowpos   # 현재 위치로 다시 돌아옴
+        self.pos = nowpos   # 현재 위치로 다시 돌아옴
 
         if startpage != lastpage:   # 시작 페이지와 마지막 페이지가 다르다면 True
             if lastline <= 6:
@@ -76,9 +79,12 @@ class HwpUserMethods(HwpMethods):
     def lineSpaceDecrease(self) -> None:
         """
         # (수정 필요)
-        한칸 위 페이지 시작 ~ 현재 위치까지를 드래그하고 줄 간격 10% 줄임\n
-        (2단 기준) 6줄을 한 페이지에 더 넣을 수 있음\n
-        Alt + Page Up / Alt + Page Down\n
+        한칸 위 페이지 시작 ~ 현재 위치까지를 드래그하고 줄 간격 10% 줄임
+
+        (2단 기준) 6줄을 한 페이지에 더 넣을 수 있음
+
+        Alt + Page Up / Alt + Page Down
+
         45, 45 -> 48, 48까지 가능
         """
         self.MovePageBegin()
@@ -92,7 +98,8 @@ class HwpUserMethods(HwpMethods):
     @clearReadState
     def __findUnderline(self) -> tuple:
         """
-        내부에서만 사용할 함수\n
+        ### 내부에서만 사용할 함수
+
         밑줄을 찾는 method
         """
         # 반복 찾기 방법
@@ -128,14 +135,20 @@ class HwpUserMethods(HwpMethods):
 
     def underLineUnicode(self, opt:int = 1) -> None:
         """
-        한/글에서 밑줄 양식을 치환하는 method\n
+        ## 한/글에서 밑줄 양식을 치환하는 method
+
         "￰"(U+FFF0) 사용
 
         위치(self.Pos)를 기준으로 밑줄 연산을 고려했는데
+
         도형 안에 글자가 있으면 이게 꼬임
+
         위에서 아래로 순서대로 읽을 수는 있으나 도형은 (list, para, pos)에서 list가 3(일반문단 0)
+
         연산 구조를 바꿔야 함
-        if last < flag: 의 연산이 문제
+
+        >>> if last < flag:
+        의 연산이 문제
 
         :param opt: 옵션(1 = 밑줄->유니코드로 치환, 0 = 유니코드->밑줄 되돌리기)
         """
